@@ -1,0 +1,30 @@
+name: uml-kernel-image
+
+# Builds and publishes oldienki/uml-kernel-6 to Docker Hub.
+# Triggers on kernel-build file changes or manual dispatch.
+
+on:
+  push:
+    paths:
+      - Dockerfile
+      - kernel.config
+      - build-kernel-image.sh
+      - .github/workflows/uml-image.yml
+  workflow_dispatch:
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push kernel image
+        run: ./build-kernel-image.sh --push
