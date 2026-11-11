@@ -23,9 +23,13 @@ also provides a rootfs and entrypoint.
 # local build + tag (~15-20 min compile)
 ./build-kernel-image.sh
 
-# build and publish to Docker Hub (requires docker login)
-./build-kernel-image.sh --push
+# build and publish (requires docker login / git-docker-publish)
+./build-kernel-image.sh --push             # push to $DOCKER_REGISTRY (default: ghcr.io)
+./build-kernel-image.sh --push-ghcr-io     # push explicitly to ghcr.io
+./build-kernel-image.sh --push-docker-io   # push explicitly to docker.io
 ```
+
+The `--push-*` flags may be combined to push to multiple registries in one run.
 
 Tags produced: `oldienki/uml-kernel-6:<KERNEL_VERSION>` plus `latest`.
 
@@ -37,6 +41,7 @@ Tags produced: `oldienki/uml-kernel-6:<KERNEL_VERSION>` plus `latest`.
 | `KERNEL_VERSION`     | `6.6.58`                 | Upstream kernel version    |
 | `KERNEL_SHA256`      | (see script/Dockerfile)  | Tarball sha256 (required when bumping `KERNEL_VERSION`) |
 | `EXTRA_TAGS`         | `latest`                 | Extra tags to apply        |
+| `DOCKER_REGISTRY`    | `ghcr.io`                | Registry used by bare `--push` |
 
 ## Bumping the kernel version
 

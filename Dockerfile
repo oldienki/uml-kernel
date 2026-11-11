@@ -77,5 +77,6 @@ RUN for opt in CONFIG_BLK_DEV_UBD CONFIG_HOSTFS CONFIG_UML_NET_TUNTAP \
 # artifacts. Published as oldienki/uml-kernel-6:<version|latest>.
 # -----------------------------------------------------------------------------
 FROM scratch AS kernel-dist
+LABEL org.opencontainers.image.source=https://github.com/oldienki/uml-kernel
 COPY --from=kernel /build/uml-linux /uml/linux
 COPY --from=kernel /build/System.map /uml/System.map

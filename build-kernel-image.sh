@@ -23,15 +23,32 @@ KERNEL_VERSION=${KERNEL_VERSION:-6.6.58}
 KERNEL_SHA256=${KERNEL_SHA256:-e7df81e588d70fab5ec3ec3bb04ac53d51f0860fc3b1ec45e0a4167a026899db}
 EXTRA_TAGS=${EXTRA_TAGS:-latest}
 
+DEFAULT_REGISTRY=${DOCKER_REGISTRY:-"ghcr.io"}
+REGISTRY=()
 PUSH=false
 for arg in "$@"; do
     case "$arg" in
-        --push) PUSH=true ;;
+        --push-docker-io)
+          REGISTRY+=("docker.io")
+          PUSH=true
+          ;;
+        --push-ghcr-io)
+          REGISTRY+=("ghcr.io")
+          PUSH=true
+          ;;
+        --push)
+          PUSH=true
+          ;;
+        # or specify a custom registry via env var
         -h|--help)
             sed -n '2,14p' "$0"; exit 0 ;;
         *) echo "Unknown option: $arg" >&2; exit 1 ;;
     esac
 done
+
+if [ $PUSH = true ] && [ -z "${REGISTRY[*]}" ]; then
+    REGISTRY+=("$DEFAULT_REGISTRY")
+fi
 
 TAGS=("$KERNEL_IMAGE_REPO:$KERNEL_VERSION")
 for t in $EXTRA_TAGS; do
@@ -57,12 +74,15 @@ docker build \
 
 echo "==> Built ${TAGS[*]}"
 
-if [ "$PUSH" = true ]; then
+if [ $PUSH = true ]; then
     for t in "${TAGS[@]}"; do
-        echo "==> Pushing $t"
-        docker push "$t"
+      for r in "${REGISTRY[@]}"; do
+        echo "==> Pushing into $r"
+        docker tag "$t" "$r/$t"
+        git-docker-publish "$r/$t"
+      done
     done
-    echo "==> Pushed all tags to Docker Hub"
+    echo "==> Pushed all tags to docker registry"
 else
-    echo "==> Skipping push (run with --push to publish to Docker Hub)"
+    echo "==> Skipping push"
 fi
