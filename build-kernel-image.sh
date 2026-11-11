@@ -58,6 +58,7 @@ done
 TAG_ARGS=()
 for t in "${TAGS[@]}"; do
     TAG_ARGS+=(-t "$t")
+    TAG_ARGS+=(-t "$DEFAULT_REGISTRY/$t")
 done
 
 echo "==> Building kernel-dist (linux $KERNEL_VERSION, ARCH=um)"
